@@ -18,7 +18,7 @@ API_KEY = os.getenv('API_KEY')
 # mydb = mysql.connector.connect(
 #     host='localhost',
 #     user='root',
-#     password='Kunals#2004',
+#     password='',
 #     database='youtube'
 # )
 # print(mydb)
