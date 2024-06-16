@@ -4,7 +4,7 @@ import googleapiclient.errors
 import pandas as pd
 import os
 import mysql.connector
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 
 app = Flask(__name__)
 
@@ -63,16 +63,27 @@ def get_youtube_comments(video_id):
     except googleapiclient.errors.HttpError as error:
         print(f'An error occurred: {error}')
         return []
-    
-@app.route("/comment", methods=['GET'])
+@app.route("/process", methods=['POST'])
+def process_text():
+    if request.content_type != 'text/plain':
+        return jsonify({"error": "Content-Type must be text/plain"}), 400
+
+    text = request.data.decode('utf-8')
+    # Here you can process the text as needed
+    # For demonstration, let's just return the text in uppercase
+    processed_text = text.upper()
+
+    return jsonify({"processed_text": processed_text})
+@app.route("/comment", methods=['POST'])
 def get_comments():
-    video_id = 'dEU2ibHQnjM'
+    if request.content_type != 'application/json':
+        return jsonify({"error": "Content-Type must be application/json"}), 400 
+    data = request.get_json()
+    video_id = data.get('video_id')
     if not video_id:
-        return jsonify({"error": "video_id is required"}), 400  
+        return jsonify({"error": "video_id is required"}), 400
     comments = get_youtube_comments(video_id)
-    df = pd.DataFrame(comments, columns=['author', 'like', 'textDisplay'])
-    print(df)
-    return jsonify(comments)
+    return jsonify({"comments": comments})
 
 # Example usage
 if __name__ == '__main__':
