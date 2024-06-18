@@ -8,8 +8,6 @@ from flask import Flask,jsonify,request
 
 app = Flask(__name__)
 
-
-
 # Load environment variables from .env file
 load_dotenv('.env')
 
@@ -29,7 +27,7 @@ API_KEY = os.getenv('API_KEY')
 if not API_KEY:
     raise ValueError("No API key found. Please set your API key in the .env file.")
 
-# Set up YouTube API client
+# Set up YouTube API client 
 api_service_name = "youtube"
 api_version = "v3"
 youtube = googleapiclient.discovery.build(
@@ -42,7 +40,7 @@ def get_youtube_comments(video_id):
         request = youtube.commentThreads().list(
             part="snippet",
             videoId=video_id,
-            maxResults=100
+            maxResults=30000
         )
         response = request.execute()
 
@@ -52,10 +50,13 @@ def get_youtube_comments(video_id):
             name = comment['authorDisplayName'],
             like = comment['likeCount'],
             text = comment['textDisplay']
+            published_at = comment['publishedAt']
+            published_at = published_at[:10]
             comments.append([
                 name,
                 like,
-                text
+                text,
+                published_at
             ])
             
         return comments
